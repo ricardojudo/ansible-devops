@@ -1,0 +1,7 @@
+- hosts: 
+  - devops-servers
+  tasks:
+    - name: Install git
+      yum:
+        name: git
+        state: latest

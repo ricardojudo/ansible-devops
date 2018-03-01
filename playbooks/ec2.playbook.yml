@@ -1,0 +1,31 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Create EC2 instance
+      ec2:
+        aws_access_key: "{{ACCESS_KEY}}"
+        aws_secret_key: "{{SECRET_KEY}}"
+        key_name: devops-lab-key
+        image: ami-97785bed
+        instance_type: t2.micro
+        group:
+          - devops-lab-sg
+        wait: true
+        instance_tags:
+          createdby: ansible
+          Name: devops-server              
+        vpc_subnet_id: subnet-993873b6
+        region: us-east-1
+        assign_public_ip: true
+        volumes:
+          - device_name: /dev/xvda
+            volume_type: gp2
+            volume_size: 20
+        instance_profile_name: devops-ec2-role
+        count: 1
+      register: ec2
+    - name: "EC2 Instance Info"
+      debug:
+        var: ec2
+

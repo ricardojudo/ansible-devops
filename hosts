@@ -1,0 +1,2 @@
+[devops-servers]
+107.23.184.195 ansible_user=ec2-user ansible_ssh_private_key_file=~/ec2/devops-lab-key.pem ansible_become=true

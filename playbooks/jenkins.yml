@@ -1,0 +1,69 @@
+- hosts: jenkins
+  
+  
+  tasks:
+
+    - name: Enable jenkins repo
+      get_url:
+        url:  http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo
+        dest: /etc/yum.repos.d/jenkins.repo
+      
+    - name: Enable Jenkins Key
+      rpm_key:
+        key: https://jenkins-ci.org/redhat/jenkins-ci.org.key
+        state: present
+
+    - name: Upgrade all packages
+      yum: name=* state=latest
+
+
+    - name: Install NGINX
+      yum:
+        name: nginx
+        state: latest
+
+    - name: Install Jenkins
+      yum:
+        name: jenkins
+        state: latest
+
+    - name: Copy NGINX configuration files
+      copy:
+        src: ../files/jenkins/nginx.conf
+        dest: /etc/nginx/conf.d/jenkins.conf
+
+    - service: 
+        name: jenkins
+        state: started
+        enabled: yes
+
+    - service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    
+    - name: Backup configuration file
+      copy:
+        src: /var/lib/jenkins/config.xml
+        dest: /var/lib/jenkins/config.xml.back
+        remote_src: true
+        owner: jenkins
+
+    - name: Copy configuration file
+      copy:
+        src: ../files/jenkins/config.xml
+        dest: /var/lib/jenkins/config.xml
+        owner: jenkins
+
+    - service:
+        name: jenkins
+        state: restarted
+
+
+
+    #- name: Install plugins
+
+
+
+    

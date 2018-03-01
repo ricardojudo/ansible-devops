@@ -1,0 +1,21 @@
+- hosts:
+  - devops-servers
+
+  tasks:
+    - name: Install latest Docker
+      yum:
+        name: docker
+        state: latest
+
+    - name: Add ec2-user to group Docker
+      user:
+        name: ec2-user
+        groups: docker
+        append: true
+
+    - service: 
+        name: docker
+        state: started
+        enabled: yes
+
+    

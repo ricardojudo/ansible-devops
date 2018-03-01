@@ -1,0 +1,2 @@
+- import_playbook: playbooks/java.playbook.yml
+- import_playbook: playbooks/minecraft.playbook.yml

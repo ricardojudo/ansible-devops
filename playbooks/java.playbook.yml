@@ -1,0 +1,55 @@
+- hosts: 
+    - devops-servers
+  tasks:
+  vars:
+    download_url: http://download.oracle.com/otn-pub/java/jdk/8u161-b12/2f38c3b165be4555a1fa6e98c45e0808/jdk-8u161-linux-x64.tar.gz
+    download_folder: /opt/java
+    java_name: "{{download_folder}}/jdk1.8.0_161"
+    java_archive: "{{download_folder}}/jdk-8u161-linux-x64.tar.gz"
+
+
+  tasks:
+  - name: Create java directory
+    file: 
+      path: "{{download_folder}}"
+      state: directory
+
+  - name: Download Java
+    command: 'wget -O {{java_archive}} --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u161-b12/2f38c3b165be4555a1fa6e98c45e0808/jdk-8u161-linux-x64.tar.gz"'
+
+  - name: Unpack archive
+  #  command: "tar -zxf {{java_archive}} -C {{download_folder}} creates={{java_name}}"
+    unarchive: 
+      src: "{{java_archive}}"
+      dest: "{{download_folder}}"
+      remote_src: yes
+  
+  - name: Fix ownership
+    file: state=directory path={{java_name}} owner=root group=root recurse=yes
+
+  - name: Make Java available for system
+    alternatives:
+      name: java
+      path: "{{java_name}}/bin/java"
+      link: "/usr/bin/java"
+
+  - name: Install tomcat
+    yum: 
+      name: "{{item}}"
+      state: latest
+    with_items:
+      - tomcat7-webapps 
+      - tomcat7-docs-webapp 
+      - tomcat7-admin-webapps
+  
+  - name: Copy tomcat-users.xml
+    copy:
+      src: ../files/tomcat/tomcat-users.xml
+      dest: /etc/tomcat7
+
+  - service: 
+      name: tomcat7
+      state: started
+      enabled: true
+
+    
